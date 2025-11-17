@@ -126,14 +126,14 @@ body {
   <div class="circle" id="logout"><i class="fas fa-sign-out-alt"></i></div>
 </div>
 
-<img class="logo" src="/logo.png" alt="Logo">
+<img class="logo" src="./logo.png" alt="Logo">
 <div class="welcome" id="welcome">Welcome, User</div>
 
 <div class="nav">
-  <i class="fas fa-home current" onclick="navigate('/home.html')"></i>
-  <i class="fas fa-map" onclick="navigate('/map.html')"></i>
-  <i class="fas fa-gavel" onclick="navigate('/rules.html')"></i>
-  <i class="fas fa-book" onclick="navigate('/resources.html')"></i>
+  <i class="fas fa-home current" onclick="navigate('./home.html')"></i>
+  <i class="fas fa-map" onclick="navigate('./map.html')"></i>
+  <i class="fas fa-gavel" onclick="navigate('./rules.html')"></i>
+  <i class="fas fa-book" onclick="navigate('./resources.html')"></i>
 </div>
 
 <div class="overlay" id="overlay">
@@ -158,7 +158,7 @@ let currentUser = null;
 
 async function fetchData() {
   try {
-    const res = await fetch('/data.json');
+    const res = await fetch('./data.json');
     data = await res.json();
     const savedId = localStorage.getItem(LS_KEY);
     if (!savedId) return;
@@ -194,7 +194,7 @@ closeOverlay.addEventListener('click', () => {
 
 logoutBtn.addEventListener('click', () => {
   localStorage.removeItem(LS_KEY);
-  window.location.href = '/index.html';
+  window.location.href = './index.html';
 });
 
 function navigate(url) {

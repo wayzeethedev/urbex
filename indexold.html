@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Midwest Urbex</title>
+<style>
+:root { --bg:#000; --fg:#fff; --muted:#bbb; --input-bg:#111; --border:#333; --radius:10px; }
+html,body {margin:0; padding:0; height:100%; width:100%; background:var(--bg); color:var(--fg); font-family:Arial,sans-serif; overflow:hidden;}
+body {display:flex; justify-content:center; align-items:center; text-align:center;}
+.container {width:100%; max-width:500px; padding:20px; box-sizing:border-box;}
+.welcome {font-size:24px; font-weight:bold; margin-bottom:10px;}
+.welcome-subtext {font-size:16px; color:var(--muted); margin-bottom:30px; line-height:1.5;}
+button {width:100%; padding:14px; background:var(--fg); color:var(--bg); border:none; border-radius:var(--radius); font-size:16px; font-weight:bold; margin-bottom:12px; cursor:pointer; transition:0.2s;}
+input,textarea {width:100%; padding:12px; margin-bottom:12px; background:var(--input-bg); border:1px solid var(--border); border-radius:var(--radius); color:var(--fg); font-size:15px; box-sizing:border-box;}
+textarea {min-height:100px; resize:none;}
+.form {display:none; text-align:left; margin-top:20px;}
+.checkbox {display:flex; align-items:center; gap:10px; font-size:14px;}
+.checkbox input {width:auto;}
+#errorMsg {color:red; margin-bottom:10px; text-align:center;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="welcome">Welcome to Midwest Urbex</div>
+  <div class="welcome-subtext">This is an invite-only community. Enter a code or submit a location.</div>
+  <button onclick="showForm('invite')">Enter Invite Code</button>
+  <button onclick="showForm('submit')">Submit Location</button>
+
+  <div id="inviteForm" class="form">
+    <input type="text" id="inviteCode" placeholder="Enter your invite code">
+    <div id="errorMsg"></div>
+    <button onclick="checkInvite()">Submit Code</button>
+  </div>
+
+  <div id="submitForm" class="form">
+    <input type="text" id="locTitle" placeholder="Location Title *">
+    <textarea id="locDesc" placeholder="Description * (Condition, access, security, size, etc.)"></textarea>
+    <input type="text" id="locCoords" placeholder="Coordinates * (e.g., 44.987 -93.265)">
+    <div class="checkbox">
+      <input type="checkbox" id="terms">
+      <label for="terms">I have read and agree to the terms and conditions</label>
+    </div>
+    <div id="submitError" style="color:red; margin-bottom:10px;"></div>
+    <button onclick="submitLocation()">Submit Location</button>
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://jsonhosting.com/api/json/9b4d150c';
+const EDIT_KEY = 'b0f076265b3ec785853c823269fc247988c24adf16d49549048c38f46a05da0f';
+
+function showForm(type){
+  document.getElementById('inviteForm').style.display = type==='invite'?'block':'none';
+  document.getElementById('submitForm').style.display = type==='submit'?'block':'none';
+}
+
+async function checkInvite(){
+  const codeInput = document.getElementById('inviteCode').value.trim();
+  const errorDiv = document.getElementById('errorMsg');
+  errorDiv.textContent = '';
+  if(!codeInput){ errorDiv.textContent='Enter a code'; return; }
+
+  try{
+    const res = await fetch(API_URL);
+    if(!res.ok) throw new Error('Fetch failed');
+    const data = await res.json();
+
+    const invite = data.inviteCodes.find(c=>c.code===codeInput);
+    if(!invite){ errorDiv.textContent='Invalid code'; return; }
+
+    invite.uses = (invite.uses || 0) + 1;
+    invite.used = true;
+
+    const patchRes = await fetch(API_URL, {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json','X-Edit-Key':EDIT_KEY},
+      body: JSON.stringify(data)
+    });
+    if(!patchRes.ok) throw new Error('Failed to update code');
+
+    localStorage.setItem('loggedIn','true');
+    localStorage.setItem('inviteCode', codeInput);
+    window.location.href='/rules';
+  }catch(e){
+    console.error(e);
+    errorDiv.textContent='Error checking code. Try again later.';
+  }
+}
+
+async function submitLocation(){
+  const title = document.getElementById('locTitle').value.trim();
+  const desc = document.getElementById('locDesc').value.trim();
+  const coords = document.getElementById('locCoords').value.trim();
+  const terms = document.getElementById('terms').checked;
+  const errorDiv = document.getElementById('submitError');
+  errorDiv.textContent = '';
+
+  if(!title || !desc || !coords){ errorDiv.textContent='Fill all fields'; return; }
+  if(!terms){ errorDiv.textContent='You must agree to the terms'; return; }
+
+  try{
+    const res = await fetch(API_URL);
+    if(!res.ok) throw new Error('Fetch failed');
+    const data = await res.json();
+
+    if(!data.locations) data.locations = [];
+
+    const newLocation = {
+      id: data.locations.length + 1,
+      name: title,
+      description: desc,
+      category: 'Unknown',
+      coordinates: coords,
+      info: [],
+      photos: [],
+      visited: false,
+      dateSubmitted: new Date().toISOString()
+    };
+
+    data.locations.push(newLocation);
+
+    const patchRes = await fetch(API_URL, {
+      method:'PATCH',
+      headers:{'Content-Type':'application/json','X-Edit-Key':EDIT_KEY},
+      body: JSON.stringify(data)
+    });
+    if(!patchRes.ok) throw new Error('Failed to submit location');
+
+    alert('Location submitted successfully!');
+    document.getElementById('locTitle').value='';
+    document.getElementById('locDesc').value='';
+    document.getElementById('locCoords').value='';
+    document.getElementById('terms').checked=false;
+  }catch(e){
+    console.error(e);
+    errorDiv.textContent='Error submitting location. Try again later.';
+  }
+}
+</script>
+</body>
+</html>

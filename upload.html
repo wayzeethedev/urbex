@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Location JSON Editor</title>
+<style>
+body{font-family:Arial;background:#111;color:#eee;margin:0;display:flex;height:100vh}
+#left{width:320px;background:#181818;border-right:1px solid #333;overflow-y:auto;padding:15px}
+#right{flex:1;padding:20px;overflow-y:auto}
+textarea,input,button{width:100%;padding:10px;margin:5px 0;border:1px solid #444;border-radius:6px;background:#222;color:#fff}
+button{cursor:pointer;background:#0a7539}
+button:hover{background:#0da94d}
+.locBtn{padding:10px;border-radius:6px;background:#222;margin:6px 0;cursor:pointer}
+.locBtn.active{background:#0a7539}
+.tag{display:flex;align-items:center;cursor:pointer;border:2px solid #444;border-radius:6px;padding:4px 6px;transition:0.2s;margin:2px}
+.tag img{height:24px;margin-right:4px}
+.tag.selected{border-color:#00c853;background:#003f1d40}
+.imgBox{display:inline-block;position:relative;margin:4px}
+.imgBox img{height:86px;border-radius:6px}
+.delImg{position:absolute;top:0;right:0;background:#c00;width:20px;height:20px;border-radius:50%;font-size:12px;text-align:center;line-height:20px;cursor:pointer}
+#pasteWrap{padding:20px;width:100%}
+h1,h2,h3{margin:12px 0}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
+</head>
+<body>
+<div id="pasteWrap">
+<h2>Paste JSON</h2>
+<textarea id="jsonInput" rows="10"></textarea>
+<button id="loadJSONBtn">Load JSON</button>
+</div>
+<div id="left" style="display:none">
+<button id="newLocBtn">＋ New Location</button>
+<div id="locList"></div>
+<button id="exportJSONBtn">Export JSON</button>
+</div>
+<div id="right" style="display:none">
+<h2 id="formTitle"></h2>
+<input id="titleBox" placeholder="Title (display only)">
+<input id="name" placeholder="Internal name">
+<textarea id="desc" rows="5" placeholder="Description"></textarea>
+<input id="coords" placeholder="Coords">
+<h3>Visited</h3>
+<label><input type="checkbox" id="visited"> Visited</label>
+<h3>Tags</h3>
+<div id="tagContainer"></div>
+<h3>Images</h3>
+<input type="file" id="imgInput" multiple>
+<button id="addImgsBtn">Add Images</button>
+<div id="imgs"></div>
+<button id="saveBtn">💾 Save</button>
+</div>
+<script>
+let json=null,key=[],index=null,selectedTags=[],imgSel=[]
+fetch("/icons/key.json").then(r=>r.json()).then(d=>{key=d;renderTags()})
+function nextId(){
+let ids=json.locations.map(x=>x.id).sort(),last=ids[ids.length-1]||"L000",n=parseInt(last.replace("L",""))+1
+return "L"+n.toString().padStart(3,"0")
+}
+function loadJSON(){
+try{json=JSON.parse(jsonInput.value)}catch(e){return alert("Invalid JSON")}
+pasteWrap.style.display="none"
+left.style.display="block"
+right.style.display="block"
+renderList()
+newLocation()
+}
+function renderList(){
+locList.innerHTML=""
+json.locations.forEach((l,i)=>{
+let b=document.createElement("div")
+b.className="locBtn"+(i===index?" active":"")
+b.innerText=l.name
+b.onclick=()=>edit(i)
+locList.appendChild(b)
+})
+}
+function edit(i){
+index=i
+let l=json.locations[i]
+formTitle.innerText=l.name
+titleBox.value=l.name
+name.value=l.name
+desc.value=l.description
+selectedTags=[...l.tags]
+imgSel=[...(l.images||[])]
+coords.value=l.coordinates.latitude+" "+l.coordinates.longitude
+visited.checked=!!l.visited
+renderList()
+renderTags()
+renderImgs()
+}
+function newLocation(){
+index=null
+formTitle.innerText="New Location"
+titleBox.value=""
+name.value=""
+desc.value=""
+coords.value=""
+visited.checked=false
+selectedTags=[]
+imgSel=[]
+renderList()
+renderTags()
+renderImgs()
+}
+function liveTitle(){
+formTitle.innerText=titleBox.value||"New Location"
+if(index!==null && locList.children[index]) locList.children[index].innerText=titleBox.value
+}
+function renderTags(){
+tagContainer.innerHTML=""
+key.forEach(tag=>{
+let div=document.createElement("div")
+div.className="tag"+(selectedTags.includes(tag.id)?" selected":"")
+div.innerHTML=`<img src="${tag.imgSrc}"><span>${tag.name}</span>`
+div.onclick=()=>{toggleTag(tag.id)}
+tagContainer.appendChild(div)
+})
+}
+function toggleTag(id){
+if(selectedTags.includes(id)) selectedTags=selectedTags.filter(t=>t!==id)
+else selectedTags.push(id)
+renderTags()
+}
+async function addImgs(){
+let files=imgInput.files
+for(let f of files){
+if(!f) continue
+if(f.type==="image/heic"||f.name.toLowerCase().endsWith(".heic")){
+try{
+let arrayBuffer=await f.arrayBuffer()
+let blob=await heic2any({blob:new Blob([arrayBuffer]),toType:"image/png"})
+let reader=new FileReader()
+reader.onload=e=>{imgSel.push(e.target.result);renderImgs()}
+reader.readAsDataURL(blob)
+}catch(e){}
+}else{
+let reader=new FileReader()
+reader.onload=e=>{imgSel.push(e.target.result);renderImgs()}
+reader.readAsDataURL(f)
+}
+}
+}
+function renderImgs(){
+imgs.innerHTML=""
+imgSel.forEach((s,i)=>{
+let box=document.createElement("div")
+box.className="imgBox"
+let img=document.createElement("img")
+img.src=s
+let del=document.createElement("div")
+del.className="delImg"
+del.innerText="×"
+del.onclick=()=>{imgSel.splice(i,1);renderImgs()}
+box.appendChild(img)
+box.appendChild(del)
+imgs.appendChild(box)
+})
+}
+function parseCoords(){
+let v=coords.value.trim()
+if(!v) return
+function dms(x){return x.replace(/[^0-9NSEW.°'"]+/g,"")}
+v=dms(v)
+if(/[NSEW]/i.test(v)){
+function toDec(s){
+let m=s.match(/(\d+)[° ]+(\d+)'?(\d+)?"?([NSEW])/)
+let d=parseFloat(m[1]),mi=parseFloat(m[2]),se=parseFloat(m[3]||0)
+let dec=d+mi/60+se/3600
+if(/[SW]/i.test(m[4])) dec*=-1
+return dec
+}
+let a=v.match(/.*?[NS]/i)[0]
+let b=v.replace(a,"")
+coords.value=toDec(a)+" "+toDec(b)
+}
+}
+function saveLocation(){
+parseCoords()
+let p=coords.value.split(" ")
+let lat=parseFloat(p[0])||0
+let lng=parseFloat(p[1])||0
+let l={
+id:index!=null?json.locations[index].id:nextId(),
+name:titleBox.value,
+tags:[...selectedTags],
+images:[...imgSel],
+coordinates:{latitude:lat,longitude:lng},
+description:desc.value,
+visited:visited.checked,
+upload_date:new Date().toISOString()
+}
+if(index!=null) json.locations[index]=l
+else json.locations.push(l)
+index=json.locations.findIndex(x=>x.id===l.id)
+renderList()
+edit(index)
+}
+function exportJSON(){
+let b=new Blob([JSON.stringify(json,null,2)],{type:"application/json"})
+let a=document.createElement("a")
+a.href=URL.createObjectURL(b)
+a.download="export.json"
+a.click()
+}
+document.getElementById("loadJSONBtn").addEventListener("click", loadJSON)
+document.getElementById("newLocBtn").addEventListener("click", newLocation)
+document.getElementById("exportJSONBtn").addEventListener("click", exportJSON)
+document.getElementById("addImgsBtn").addEventListener("click", addImgs)
+document.getElementById("saveBtn").addEventListener("click", saveLocation)
+titleBox.addEventListener("input", liveTitle)
+</script>
+</body>
+</html>

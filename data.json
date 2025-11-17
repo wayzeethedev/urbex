@@ -1,0 +1,259 @@
+{
+  "accounts": [
+    {
+      "id": "001",
+      "name": "Christian",
+      "code": "loga.explores",
+      "banned": false
+    },
+    {
+      "id": "002",
+      "name": "Brennan",
+      "code": "brennan.lee",
+      "banned": false
+    }
+  ],
+  "locations": [
+    {
+      "id": "L001",
+      "name": "UMore Park",
+      "tags": [
+        "trespassing",
+        "ticks",
+        "barbed wire",
+        "security",
+        "hotspot",
+        "squatters"
+      ],
+      "images": [],
+      "coordinates": {
+        "latitude": 44.7246666,
+        "longitude": -93.0537778
+      },
+      "description": "Large WW2 ammo complex with over 16 buildings still standing today.",
+      "upload_date": "2025-11-17T04:55:46.242Z"
+    },
+    {
+      "id": "L002",
+      "name": "Asphalt Plant",
+      "tags": [
+        "squatters"
+      ],
+      "images": [],
+      "coordinates": {
+        "latitude": 44.9515487,
+        "longitude": -93.2458763
+      },
+      "description": "Beware of Arsenic. People claim that it's easy to get into, and say there is a homeless man living in an RV on the property.",
+      "upload_date": "2025-11-17T04:58:31.510Z"
+    },
+    {
+      "id": "L003",
+      "name": "Abandoned Houses",
+      "tags": [],
+      "images": [],
+      "coordinates": {
+        "latitude": 44.4723438,
+        "longitude": -93.0441778
+      },
+      "description": "",
+      "upload_date": "2025-11-17T05:02:00.022Z"
+    },
+    {
+      "id": "L004",
+      "name": "Old Houses",
+      "tags": [],
+      "images": [],
+      "coordinates": {
+        "latitude": 45.1535278,
+        "longitude": -93.024
+      },
+      "description": "",
+      "upload_date": "2025-11-17T05:02:11.523Z"
+    },
+    {
+      "id": "L005",
+      "name": "Farm",
+      "tags": [],
+      "images": [],
+      "coordinates": {
+        "latitude": 44.827705030071144,
+        "longitude": -92.9970833551066
+      },
+      "description": "",
+      "upload_date": "2025-11-17T05:02:46.102Z"
+    },
+    {
+      "id": "L006",
+      "name": "Groots Glory Hole",
+      "tags": [
+        "hotspot",
+        "flashlight"
+      ],
+      "images": [],
+      "coordinates": {
+        "latitude": 44.5627928,
+        "longitude": -92.5136167
+      },
+      "description": "Old Red Wing kiln located in Red Wings' Memorial Park. Follow the trail, and when you see a beaten path to the left, follow it down until you see 1/2 entrances, either a hole beneath a tree or a stone arch with graffiti on it.",
+      "upload_date": "2025-11-17T05:07:08.804Z"
+    },
+    {
+      "id": "L007",
+      "name": "Cannon River Bridge",
+      "tags": [],
+      "images": [],
+      "coordinates": {
+        "latitude": 44.5828319,
+        "longitude": -92.6444184
+      },
+      "description": "Bridge #1 of a series of 3 bridges. The first time I went was midday and it was fine, second time I went with friends and within 10 seconds of getting out of the car we heard a non-human scream from the bushes, so do with that as you will.",
+      "upload_date": "2025-11-17T05:07:01.080Z"
+    },
+    {
+      "id": "L008",
+      "name": "Carmichael Barn",
+      "tags": [
+        "flashlight",
+        "squatters"
+      ],
+      "images": [],
+      "coordinates": {
+        "latitude": 44.9675,
+        "longitude": -92.72
+      },
+      "description": "White barn across from Target in Hudson. Been abandoned for years. Last time I went, there were sleeping bags and blankets inside. Big hole in the back, boards have been removed.",
+      "visited": true,
+      "upload_date": "2025-11-17T05:21:47.138Z"
+    },
+    {
+      "id": "L009",
+      "name": "House",
+      "tags": [
+        "flashlight"
+      ],
+      "images": [],
+      "coordinates": {
+        "latitude": 44.940555555555555,
+        "longitude": -92.84333333333333
+      },
+      "description": "Old house claimed to be built in 1800. Trashed inside with little graffiti. Nobody knows about this as of 11/16/2025",
+      "visited": true,
+      "upload_date": "2025-11-17T05:23:01.348Z"
+    },
+    {
+      "id": "L010",
+      "name": "Hidden Valley Campground",
+      "tags": [
+        "trespassing"
+      ],
+      "images": [],
+      "coordinates": {
+        "latitude": 44.556666666666665,
+        "longitude": -92.75472222222223
+      },
+      "description": "",
+      "visited": true,
+      "upload_date": "2025-11-17T05:24:22.050Z"
+    },
+    {
+      "id": "L011",
+      "name": "Ford Steam Plant",
+      "tags": [
+        "asbestos",
+        "camera",
+        "fence",
+        "flashlight",
+        "hotspot",
+        "security",
+        "squatters",
+        "still",
+        "trespassing",
+        "rope"
+      ],
+      "images": [],
+      "coordinates": {
+        "latitude": 44.9125,
+        "longitude": -93.19805555555556
+      },
+      "description": "The abandoned Ford Steam Plant in St. Paul, MN, was part of Ford Motors’ assembly complex, with most of the plant demolished in 2011, leaving this single building standing. It was historically used to generate steam for nearby buildings, a common urban heating method. Today, access is difficult and risky—explorers report climbing ropes, pipes, or sketchy staircases to enter, and security and vandalism make it increasingly hazardous. (im lazy, reddit summary)",
+      "visited": true,
+      "upload_date": "2025-11-17T05:31:12.987Z"
+    },
+    {
+      "id": "L012",
+      "name": "Arden Hills Ordnance Works",
+      "tags": [],
+      "images": [],
+      "coordinates": {
+        "latitude": 45.10305555555556,
+        "longitude": -93.17722222222223
+      },
+      "description": "The Twin Cities Army Ammunition Plant in Arden Hills/New Brighton, MN, was built in 1941 to produce small arms ammunition for World War II and later supported the Korean and Vietnam Wars. The site was heavily contaminated over decades of operation and is now a Superfund site undergoing cleanup and redevelopment. Access is restricted, with fences, active security, and no-trespassing enforcement. (again im lazy). Unsure of tags.",
+      "visited": true,
+      "upload_date": "2025-11-17T05:34:21.694Z"
+    },
+    {
+      "id": "L013",
+      "name": "Airway Beacon",
+      "tags": [],
+      "images": [],
+      "coordinates": {
+        "latitude": 44.94583333333333,
+        "longitude": -93.05749999999999
+      },
+      "description": "Easiest climbable tower in the cities. 110 ft tall. Huge holes (yes, multiple) in fence and ladder is unlocked. Beautiful view of the city. Go at night because it's located in a public park.",
+      "visited": false,
+      "upload_date": "2025-11-17T05:37:23.174Z"
+    },
+    {
+      "id": "L014",
+      "name": "Germain Farm",
+      "tags": [],
+      "images": [],
+      "coordinates": {
+        "latitude": 45.10777777777778,
+        "longitude": -92.58555555555554
+      },
+      "description": "",
+      "visited": false,
+      "upload_date": "2025-11-17T05:40:28.432Z"
+    },
+    {
+      "id": "L015",
+      "name": "Arcola High Bridge",
+      "tags": [],
+      "images": [],
+      "coordinates": {
+        "latitude": 45.12277777777778,
+        "longitude": -92.74333333333334
+      },
+      "description": "AKA the Soo Line High Bridge. Active railroad bridge with a 180ft+ rope swing beneath. Not abandoned but sick nonetheless.",
+      "visited": true,
+      "upload_date": "2025-11-17T05:53:15.067Z"
+    },
+    {
+      "id": "L016",
+      "name": "Hager House",
+      "tags": [],
+      "images": [],
+      "coordinates": {
+        "latitude": 44.669444444444444,
+        "longitude": -92.63388888888889
+      },
+      "description": "Provided by Graysen Hallock. No clue if people know about this place, or anything else. Go check it out, it might be the next untouched spot.",
+      "visited": false,
+      "upload_date": "2025-11-17T05:45:59.077Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "N001",
+      "title": "New Location Added",
+      "message": "A new 67 abandoned factory has been uploaded — check the map!",
+      "read_by": [],
+      "posted_by": "system",
+      "timestamp": "2025-11-15T12:05:00Z"
+    }
+  ]
+}

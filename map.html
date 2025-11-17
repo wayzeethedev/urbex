@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Urbex Map</title>
+<link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+<style>
+body{margin:0;font-family:Arial,sans-serif;height:100vh;overflow:hidden;background-color:black;color:white}
+#map{position:fixed;inset:0}
+.nav{width:100%;background-color:black;height:70px;display:flex;justify-content:space-around;align-items:center;position:fixed;bottom:0;left:0;padding-bottom:env(safe-area-inset-bottom,10px);border-radius:20px 20px 0 0;z-index:1200}
+.nav i{font-size:24px;color:white;cursor:pointer}
+.nav i.current{color:#4CAF50}
+#preview{position:fixed;bottom:80px;left:10px;right:10px;height:120px;background-color:black;background-size:cover;background-position:center;color:white;transition:transform .28s ease,box-shadow .28s ease;transform:translateY(150%);display:flex;flex-direction:column;justify-content:flex-end;padding:10px;box-sizing:border-box;z-index:1190;cursor:pointer;border-radius:10px}
+#preview.active{transform:translateY(0);box-shadow:0 -5px 20px rgba(0,0,0,.6)}
+#preview h2{margin:0 0 5px 0;font-size:18px;text-shadow:1px 1px 6px rgba(0,0,0,.8)}
+#preview .thumbs{display:flex;gap:5px;justify-content:flex-end}
+#preview .thumbs img{width:40px;height:40px;object-fit:cover;border:2px solid white;cursor:pointer}
+#layer-picker{position:fixed;top:12px;left:12px;z-index:1300}
+#toggle-layers{padding:8px 12px;border:none;border-radius:8px;background:#000;color:#fff;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+#layer-panel{display:none;margin-top:8px;padding:12px;background:rgba(0,0,0,.95);color:#fff;border-radius:10px;font-size:15px;width:220px;backdrop-filter:blur(6px)}
+#layer-panel h3{margin:8px 0;font-size:15}
+#layer-panel label{display:block;margin:8px 0;cursor:pointer}
+#mode-toggle{position:fixed;top:12px;right:12px;z-index:1300;padding:8px 12px;border-radius:8px;border:none;background:#000;color:#fff;font-size:14px}
+#compass{position:fixed;right:12px;top:64px;z-index:1300;width:44px;height:44px;border-radius:8px;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;cursor:pointer}
+.pin{width:25px;height:25px;background:url('https://www.pikpng.com/pngl/b/416-4165003_icon-google-map-blue-pin-clipart.png') no-repeat center/contain;cursor:pointer}
+@media (max-width:520px){#layer-panel{width:170px;font-size:14px}#preview{left:8px;right:8px;height:110px}}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="preview">
+<h2 id="preview-title"></h2>
+<div class="thumbs" id="preview-thumbs"></div>
+</div>
+<div id="layer-picker">
+<button id="toggle-layers">Layers</button>
+<div id="layer-panel">
+<h3>Base Map</h3>
+<label><input type="radio" name="basemap" value="jawgLight"> Jawg Light</label>
+<label><input type="radio" name="basemap" value="jawgDark"> Jawg Dark</label>
+<label><input type="radio" name="basemap" value="satellite"> Satellite</label>
+<h3>Overlays</h3>
+<label><input type="checkbox" data-layer="railways"> Railways</label>
+<label><input type="checkbox" data-layer="towers"> Towers</label>
+</div>
+</div>
+<button id="mode-toggle">3D</button>
+<div id="compass" title="Reset North"><i class="fas fa-location-arrow"></i></div>
+<div class="nav">
+<i class="fas fa-home" onclick="window.location.href='/home.html'"></i>
+<i class="fas fa-map current" onclick="window.location.href='/map.html'"></i>
+<i class="fas fa-gavel" onclick="window.location.href='/rules.html'"></i>
+<i class="fas fa-book" onclick="window.location.href='/resources.html'"></i>
+</div>
+<script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+<script>
+const JAWG_TOKEN='8eX9Dy9yTXS7W4kVovW7VsnRYtQXMhMU1bn120rO7kUPWRCb6VVfiFaHXkGJJ413'
+const savedBase=localStorage.getItem('urbex.basemap')||'jawgLight'
+const savedRail=localStorage.getItem('urbex.rail')==='true'
+const savedTowers=localStorage.getItem('urbex.towers')==='true'
+let initialCenter=[0,0]
+let initialZoom=13
+fetch('data.json').then(r=>r.json()).then(d=>{
+const locations=d.locations
+if(locations.length>0)initialCenter=[locations[0].coordinates.longitude,locations[0].coordinates.latitude]
+const map=new maplibregl.Map({
+container:'map',
+style:{
+version:8,
+sources:{
+jawgLight:{type:'raster',tiles:['https://a.tile.jawg.io/jawg-light/{z}/{x}/{y}.png?access-token='+JAWG_TOKEN],tileSize:256},
+jawgDark:{type:'raster',tiles:['https://a.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token='+JAWG_TOKEN],tileSize:256},
+sat:{type:'raster',tiles:['https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}.jpg'],tileSize:256},
+rail:{type:'raster',tiles:['https://a.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png'],tileSize:256}
+},
+layers:[{id:'base',type:'raster',source:savedBase==='jawgDark'?'jawgDark':savedBase==='satellite'?'sat':'jawgLight'}]
+},
+center:initialCenter,
+zoom:initialZoom,
+pitch:0,
+bearing:0
+})
+map.touchZoomRotate.disableRotation()
+map.scrollZoom.enable({around:'center'})
+map.doubleClickZoom.disable()
+map.boxZoom.disable()
+map.keyboard.disable()
+map.dragPan.enable({inertia:0})
+map.dragRotate.disable()
+map.addControl(new maplibregl.NavigationControl({showCompass:false,showZoom:false}))
+map.on('load',()=>{
+if(savedRail)map.addLayer({id:'railways-layer',type:'raster',source:'rail'},'base')
+locations.forEach(l=>{
+const el=document.createElement('div')
+el.className='pin'
+el.onclick=e=>{e.stopPropagation();showPreview({id:l.id,name:l.name,images:l.images||[],description:l.description,submitted_by:l.submitted_by,danger_rating:l.danger_rating})}
+new maplibregl.Marker(el).setLngLat([l.coordinates.longitude,l.coordinates.latitude]).addTo(map)
+})
+})
+document.getElementById('toggle-layers').onclick=()=>{const p=document.getElementById('layer-panel');p.style.display=p.style.display==='block'?'none':'block'}
+document.querySelectorAll('input[name="basemap"]').forEach(r=>{r.checked=r.value===savedBase;r.onchange=()=>{const id=r.value==='jawgDark'?'jawgDark':r.value==='satellite'?'sat':'jawgLight';map.removeLayer('base');map.addLayer({id:'base',type:'raster',source:id},map.getStyle().layers[0].id);localStorage.setItem('urbex.basemap',r.value)}})
+document.querySelectorAll('#layer-panel input[type="checkbox"]').forEach(c=>{c.checked=(c.dataset.layer==='railways'&&savedRail)||(c.dataset.layer==='towers'&&savedTowers);c.onchange=()=>{if(c.dataset.layer==='railways'){if(c.checked)map.addLayer({id:'railways-layer',type:'raster',source:'rail'},'base');else if(map.getLayer('railways-layer'))map.removeLayer('railways-layer')}}})
+const modeToggle=document.getElementById('mode-toggle')
+let mode3d=true
+modeToggle.onclick=()=>{mode3d=!mode3d;modeToggle.textContent=mode3d?'2D':'3D';map.easeTo({pitch:mode3d?60:0,duration:500})}
+document.getElementById('compass').onclick=()=>{map.easeTo({bearing:0,duration:400})}
+})
+function showPreview(location){
+const preview=document.getElementById('preview')
+const title=document.getElementById('preview-title')
+const thumbs=document.getElementById('preview-thumbs')
+if(location.images.length>0)preview.style.backgroundImage=`url(${location.images[0]})`;else preview.style.backgroundImage='none'
+title.textContent=location.name
+thumbs.innerHTML=''
+location.images.slice(1,4).forEach(img=>{const i=document.createElement('img');i.src=img;i.onclick=e=>{e.stopPropagation();openDetails(location)};thumbs.appendChild(i)})
+preview.classList.add('active')
+preview.style.transform='translateY(0)'
+preview.onclick=e=>{e.stopPropagation();openDetails(location)}
+document.addEventListener('click',closePreviewOnClickOutside)
+}
+function openDetails(location){window.location.href=`/location.html?id=${encodeURIComponent(location.id)}`}
+function closePreviewOnClickOutside(e){
+const preview=document.getElementById('preview')
+const pins=document.querySelectorAll('.pin')
+let clickedPin=false
+pins.forEach(pin=>{if(pin.contains(e.target))clickedPin=true})
+if(!preview.contains(e.target) && !clickedPin){
+preview.classList.remove('active')
+preview.style.transform='translateY(150%)'
+document.removeEventListener('click',closePreviewOnClickOutside)
+}
+}
+</script>
+</body>
+</html>

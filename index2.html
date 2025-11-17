@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Midwest Urbex</title>
+<style>
+:root { 
+  --bg:#000; 
+  --fg:#fff; 
+  --muted:#bbb; 
+  --input-bg:#111; 
+  --border:#333; 
+  --radius:10px; 
+  --accent:#4CAF50;
+  --error:#f44336;
+  --success:#4CAF50;
+}
+
+html, body {
+  margin:0; 
+  padding:0; 
+  height:100%; 
+  width:100%; 
+  background:var(--bg); 
+  color:var(--fg); 
+  font-family:Arial,sans-serif; 
+  overflow:hidden;
+}
+
+body {
+  display:flex; 
+  justify-content:center; 
+  align-items:center; 
+  text-align:center;
+}
+
+.container {
+  width:100%; 
+  max-width:500px; 
+  padding:20px; 
+  box-sizing:border-box;
+}
+
+.welcome {
+  font-size:24px; 
+  font-weight:bold; 
+  margin-bottom:10px;
+}
+
+.welcome-subtext {
+  font-size:16px; 
+  color:var(--muted); 
+  margin-bottom:30px; 
+  line-height:1.5;
+}
+
+button {
+  width:100%; 
+  padding:14px; 
+  background:var(--fg); 
+  color:var(--bg); 
+  border:none; 
+  border-radius:var(--radius); 
+  font-size:16px; 
+  font-weight:bold; 
+  margin-bottom:12px; 
+  cursor:pointer; 
+  transition:0.2s;
+}
+
+button:hover {
+  opacity:0.9;
+  transform:translateY(-2px);
+}
+
+button.secondary {
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--fg);
+}
+
+input, textarea {
+  width:100%; 
+  padding:12px; 
+  margin-bottom:12px; 
+  background:var(--input-bg); 
+  border:1px solid var(--border); 
+  border-radius:var(--radius); 
+  color:var(--fg); 
+  font-size:15px; 
+  box-sizing:border-box;
+}
+
+textarea {
+  min-height:100px; 
+  resize:none;
+}
+
+.form {
+  display:none; 
+  text-align:left; 
+  margin-top:20px;
+}
+
+.checkbox {
+  display:flex; 
+  align-items:center; 
+  gap:10px; 
+  font-size:14px;
+  margin-bottom:15px;
+}
+
+.checkbox input {
+  width:auto;
+}
+
+.error {
+  color:var(--error); 
+  margin-bottom:10px; 
+  text-align:center;
+  font-size:14px;
+}
+
+.success {
+  color:var(--success);
+  margin-bottom:10px;
+  text-align:center;
+  font-size:14px;
+}
+
+.loading {
+  display: none;
+  text-align: center;
+  margin: 10px 0;
+  color: var(--muted);
+}
+
+.back-button {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  text-align: left;
+  margin-bottom: 20px;
+  padding: 0;
+  width: auto;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  color: var(--fg);
+  transform: none;
+}
+
+.rules-content {
+  text-align: left;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+}
+
+.rules-content h3 {
+  margin-top: 0;
+}
+
+.rules-content ul {
+  padding-left: 20px;
+}
+
+.rules-content li {
+  margin-bottom: 10px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div id="welcomeScreen">
+    <div class="welcome">Welcome to Midwest Urbex</div>
+    <div class="welcome-subtext">This is an invite-only community. Enter a code or submit a location.</div>
+    <button onclick="showForm('invite')">Enter Invite Code</button>
+    <button onclick="showForm('submit')">Submit Location</button>
+  </div>
+
+  <div id="inviteForm" class="form">
+    <button class="back-button" onclick="showWelcomeScreen()">← Back</button>
+    <input type="text" id="inviteCode" placeholder="Enter your invite code">
+    <div id="inviteError" class="error"></div>
+    <div id="inviteLoading" class="loading">Checking code...</div>
+    <button onclick="checkInvite()">Submit Code</button>
+  </div>
+
+  <div id="submitForm" class="form">
+    <button class="back-button" onclick="showWelcomeScreen()">← Back</button>
+    <input type="text" id="locTitle" placeholder="Location Title *">
+    <textarea id="locDesc" placeholder="Description * (Condition, access, security, size, etc.)"></textarea>
+    <input type="text" id="locCoords" placeholder="Coordinates * (e.g., 44.987 -93.265)">
+    <div class="checkbox">
+      <input type="checkbox" id="terms">
+      <label for="terms">I have read and agree to the terms and conditions</label>
+    </div>
+    <div id="submitError" class="error"></div>
+    <div id="submitSuccess" class="success"></div>
+    <div id="submitLoading" class="loading">Submitting location...</div>
+    <button onclick="submitLocation()">Submit Location</button>
+  </div>
+
+  <div id="rulesScreen" class="form">
+    <button class="back-button" onclick="showWelcomeScreen()">← Back to Main</button>
+    <div class="welcome">Community Rules</div>
+    <div class="rules-content">
+      <h3>Safety First</h3>
+      <ul>
+        <li>Never explore alone - use the buddy system</li>
+        <li>Wear appropriate protective gear (respirator, gloves, sturdy shoes)</li>
+        <li>Be aware of structural instability and hazardous materials</li>
+        <li>Have an exit strategy and know your surroundings</li>
+      </ul>
+      
+      <h3>Respect the Space</h3>
+      <ul>
+        <li>Take only photos, leave only footprints</li>
+        <li>Do not damage or vandalize property</li>
+        <li>Do not remove artifacts or souvenirs</li>
+        <li>Leave locations as you found them</li>
+      </ul>
+      
+      <h3>Legal Considerations</h3>
+      <ul>
+        <li>Trespassing is illegal - understand the risks</li>
+        <li>Do not share specific access points publicly</li>
+        <li>Be respectful if asked to leave by property owners or authorities</li>
+        <li>Do not post photos that could identify exact locations</li>
+      </ul>
+      
+      <h3>Community Guidelines</h3>
+      <ul>
+        <li>Share knowledge and help fellow explorers</li>
+        <li>Be honest about location conditions and difficulties</li>
+        <li>Respect others' experiences and perspectives</li>
+        <li>Help preserve these spaces for future generations</li>
+      </ul>
+    </div>
+    <button onclick="showWelcomeScreen()">I Understand</button>
+  </div>
+</div>
+
+<script>
+const API_URL = 'https://api.jsonsilo.com/public/071718ee-445b-4e60-9b7b-f12c78d3bb08';
+
+function showWelcomeScreen() {
+  document.getElementById('welcomeScreen').style.display = 'block';
+  document.getElementById('inviteForm').style.display = 'none';
+  document.getElementById('submitForm').style.display = 'none';
+  document.getElementById('rulesScreen').style.display = 'none';
+}
+
+function showForm(type) {
+  document.getElementById('welcomeScreen').style.display = 'none';
+  document.getElementById('inviteForm').style.display = type === 'invite' ? 'block' : 'none';
+  document.getElementById('submitForm').style.display = type === 'submit' ? 'block' : 'none';
+  document.getElementById('rulesScreen').style.display = 'none';
+  document.getElementById('inviteError').textContent = '';
+  document.getElementById('submitError').textContent = '';
+  document.getElementById('submitSuccess').textContent = '';
+}
+
+function showRules() {
+  document.getElementById('welcomeScreen').style.display = 'none';
+  document.getElementById('inviteForm').style.display = 'none';
+  document.getElementById('submitForm').style.display = 'none';
+  document.getElementById('rulesScreen').style.display = 'block';
+}
+
+async function checkInvite() {
+  const codeInput = document.getElementById('inviteCode').value.trim();
+  const errorDiv = document.getElementById('inviteError');
+  const loadingDiv = document.getElementById('inviteLoading');
+
+  errorDiv.textContent = '';
+  loadingDiv.style.display = 'block';
+
+  if (!codeInput) {
+    loadingDiv.style.display = 'none';
+    errorDiv.textContent = 'Please enter a code';
+    return;
+  }
+
+  try {
+    const res = await fetch(API_URL);
+    if (!res.ok) throw new Error('API failed');
+    const data = await res.json();
+
+    const valid = Array.isArray(data.codes) && data.codes.includes(codeInput);
+
+    if (!valid) {
+      loadingDiv.style.display = 'none';
+      errorDiv.textContent = 'Invalid code';
+      return;
+    }
+
+    localStorage.setItem('loggedIn', 'true');
+    localStorage.setItem('inviteCode', codeInput);
+    loadingDiv.style.display = 'none';
+    showRules();
+  } catch (e) {
+    console.error(e);
+    loadingDiv.style.display = 'none';
+    errorDiv.textContent = 'Error checking code. Please try again later.';
+  }
+}
+
+async function submitLocation() {
+  const title = document.getElementById('locTitle').value.trim();
+  const desc = document.getElementById('locDesc').value.trim();
+  const coords = document.getElementById('locCoords').value.trim();
+  const terms = document.getElementById('terms').checked;
+  const errorDiv = document.getElementById('submitError');
+  const successDiv = document.getElementById('submitSuccess');
+  const loadingDiv = document.getElementById('submitLoading');
+
+  errorDiv.textContent = '';
+  successDiv.textContent = '';
+  loadingDiv.style.display = 'block';
+
+  if (!title || !desc || !coords) {
+    loadingDiv.style.display = 'none';
+    errorDiv.textContent = 'Please fill in all required fields';
+    return;
+  }
+
+  if (!terms) {
+    loadingDiv.style.display = 'none';
+    errorDiv.textContent = 'You must agree to the terms';
+    return;
+  }
+
+  const coordPattern = /^-?\d+(\.\d+)?\s+-?\d+(\.\d+)?$/;
+  if (!coordPattern.test(coords)) {
+    loadingDiv.style.display = 'none';
+    errorDiv.textContent = 'Coordinates must be: latitude longitude';
+    return;
+  }
+
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    document.getElementById('locTitle').value = '';
+    document.getElementById('locDesc').value = '';
+    document.getElementById('locCoords').value = '';
+    document.getElementById('terms').checked = false;
+
+    loadingDiv.style.display = 'none';
+    successDiv.textContent = 'Location submitted successfully!';
+
+    setTimeout(() => successDiv.textContent = '', 5000);
+  } catch (e) {
+    console.error(e);
+    loadingDiv.style.display = 'none';
+    errorDiv.textContent = 'Failed to submit. Try again.';
+  }
+}
+
+showWelcomeScreen();
+</script>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Location Page</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: black;
+    color: white;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    overflow-x: hidden;
+  }
+
+  .banner {
+    position: relative;
+    width: 100%;
+    height: 250px;
+    overflow: hidden;
+  }
+  .banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+  .banner::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 80px;
+    background: linear-gradient(to top, black, transparent);
+    z-index: 1;
+  }
+  .title {
+    position: absolute;
+    bottom: 10px;
+    left: 20px;
+    font-size: 32px;
+    font-weight: bold;
+    z-index: 2;
+  }
+
+  .back-arrow {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 3;
+  }
+
+  .selector {
+    display: flex;
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border-bottom: 1px solid #444;
+  }
+  .option {
+    flex: 1;
+    text-align: center;
+    line-height: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: color 0.3s;
+  }
+  .option.active {
+    color: red;
+  }
+  .indicator {
+    position: absolute;
+    bottom: 0;
+    width: 50%;
+    height: 3px;
+    background-color: red;
+    transition: transform 0.3s;
+  }
+
+  .report-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin: 15px 20px;
+  }
+
+  .coords {
+    font-size: 20px;
+    cursor: pointer;
+    text-align: center;
+    position: relative;
+  }
+
+  .coords-dropdown {
+    display: none;
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #222;
+    border: 1px solid #444;
+    border-radius: 5px;
+    overflow: hidden;
+    z-index: 10;
+  }
+  .coords-dropdown a {
+    display: block;
+    padding: 8px 15px;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+  }
+  .coords-dropdown a:hover {
+    background-color: #333;
+  }
+
+  .tag-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  .tag-grid img {
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+    cursor: pointer;
+  }
+
+  .gallery {
+    display: none;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 10px;
+  }
+  .gallery img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+  }
+
+  .description-box {
+    text-align: center;
+    font-size: 16px;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: #222;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    display: none;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .invalid-message {
+    text-align: center;
+    margin-top: 50px;
+    font-size: 20px;
+    color: red;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <img id="bannerImage" src="">
+  <div class="title" id="titleText">Title</div>
+  <div class="back-arrow">&#8592;</div>
+</div>
+
+<div class="selector">
+  <div class="option active" data-index="0">Report</div>
+  <div class="option" data-index="1">Gallery</div>
+  <div class="indicator"></div>
+</div>
+
+<div id="reportTab" class="report-tab">
+  <div class="coords" id="coords">0, 0
+    <div class="coords-dropdown">
+      <a href="#" target="_blank">Google Maps</a>
+      <a href="#" target="_blank">Apple Maps</a>
+      <a href="#" target="_blank">Waze</a>
+      <a href="#" target="_blank">Google Earth</a>
+    </div>
+  </div>
+  <div class="tag-grid" id="tagGrid"></div>
+  <div class="description-box" id="description"></div>
+</div>
+
+<div id="galleryTab" class="gallery"></div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<div class="invalid-message" id="invalidMessage" style="display:none;">Invalid data. Try again.</div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const locationId = urlParams.get('id');
+const titleText = document.getElementById('titleText');
+const bannerImage = document.getElementById('bannerImage');
+const coordsElem = document.getElementById('coords');
+const descriptionBox = document.getElementById('description');
+const tagGrid = document.getElementById('tagGrid');
+const galleryTab = document.getElementById('galleryTab');
+const tooltip = document.getElementById('tooltip');
+const invalidMessage = document.getElementById('invalidMessage');
+
+// Load data.json
+fetch('/data.json')
+  .then(res => res.json())
+  .then(data => {
+    const location = data.locations.find(l => l.id === locationId);
+    if(!location){
+      document.getElementById('reportTab').style.display = 'none';
+      galleryTab.style.display = 'none';
+      document.querySelector('.banner').style.display = 'none';
+      document.querySelector('.selector').style.display = 'none';
+      invalidMessage.style.display = 'block';
+      return;
+    }
+
+    // Populate banner title
+    titleText.innerText = location.name;
+
+    // Banner image - use first location image or placeholder
+    if(location.images.length > 0){
+      bannerImage.src = location.images[0];
+    } else {
+      bannerImage.src = 'https://via.placeholder.com/800x250';
+    }
+
+    // Coordinates
+    const lat = location.coordinates.latitude;
+    const lon = location.coordinates.longitude;
+    coordsElem.firstChild.textContent = `${lat}, ${lon}`;
+    const dropdownLinks = coordsElem.querySelectorAll('a');
+    dropdownLinks[0].href = `https://www.google.com/maps?q=${lat},${lon}`;
+    dropdownLinks[1].href = `https://maps.apple.com/?q=${lat},${lon}`;
+    dropdownLinks[2].href = `https://www.waze.com/ul?ll=${lat},${lon}&navigate=yes`;
+    dropdownLinks[3].href = `https://earth.google.com/web/search/${lat},${lon}`;
+
+    // Description
+    descriptionBox.innerText = location.description;
+
+    // Load tags from external JSON
+    fetch('/icons/key.json')
+      .then(res => res.json())
+      .then(tagsData => {
+        location.tags.forEach(tagName => {
+          const tag = tagsData.find(t => t.name.toLowerCase() === tagName.toLowerCase());
+          if(tag){
+            const img = document.createElement('img');
+            img.src = tag.imgSrc;
+            img.alt = tag.name;
+            img.dataset.name = tag.name;
+            img.addEventListener('click', e => {
+              tooltip.innerText = e.target.dataset.name;
+              tooltip.style.display = 'block';
+              const rect = e.target.getBoundingClientRect();
+              tooltip.style.top = rect.top - 35 + 'px';
+              tooltip.style.left = rect.left + rect.width/2 - tooltip.offsetWidth/2 + 'px';
+              setTimeout(() => tooltip.style.display = 'none', 1500);
+            });
+            tagGrid.appendChild(img);
+          }
+        });
+      });
+
+    // Gallery
+    location.images.forEach(src => {
+      const img = document.createElement('img');
+      img.src = src;
+      galleryTab.appendChild(img);
+    });
+
+  })
+  .catch(err => {
+    console.error(err);
+    document.getElementById('reportTab').style.display = 'none';
+    galleryTab.style.display = 'none';
+    document.querySelector('.banner').style.display = 'none';
+    document.querySelector('.selector').style.display = 'none';
+    invalidMessage.style.display = 'block';
+  });
+
+// Tab logic
+const options = document.querySelectorAll('.option');
+const indicator = document.querySelector('.indicator');
+const report = document.getElementById('reportTab');
+
+options.forEach(option => {
+  option.addEventListener('click', () => {
+    options.forEach(o => o.classList.remove('active'));
+    option.classList.add('active');
+    indicator.style.transform = `translateX(${option.dataset.index * 100}%)`;
+    if(option.dataset.index === '0'){
+      report.style.display = 'flex';
+      galleryTab.style.display = 'none';
+    } else {
+      report.style.display = 'none';
+      galleryTab.style.display = 'flex';
+    }
+  });
+});
+
+// Back arrow
+document.querySelector('.back-arrow').addEventListener('click', () => {
+  history.back();
+});
+
+// Coordinates dropdown
+const coords = document.querySelector('.coords');
+const dropdown = document.querySelector('.coords-dropdown');
+coords.addEventListener('click', () => {
+  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+});
+document.addEventListener('click', e => {
+  if(!coords.contains(e.target)) dropdown.style.display = 'none';
+});
+</script>
+</body>
+</html>

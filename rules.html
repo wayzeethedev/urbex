@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Urbex Rules</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+body {
+  background-color: black;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-bottom: 90px; /* space for bottom nav */
+}
+
+.rules-header {
+  text-align: center;
+  font-size: 36px;
+  font-weight: bold;
+  margin: 40px auto 20px auto;
+}
+
+.rules-list {
+  margin: 0 auto;
+  max-width: 90%;
+  padding: 0;
+  list-style: decimal inside;
+}
+
+.rules-list li {
+  margin: 15px 0;
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.nav {
+  width: 100%;
+  background-color: black;
+  height: 70px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  padding-bottom: env(safe-area-inset-bottom, 10px);
+  border-radius: 20px 20px 0 0;
+}
+
+.nav i {
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+}
+
+.nav i.current {
+  color: #4CAF50;
+}
+</style>
+</head>
+<body>
+
+<div class="rules-header">Rules</div>
+
+<ul class="rules-list">
+  <li>Never go alone; always have a buddy.</li>
+  <li>Respect private property; don’t vandalize.</li>
+  <li>Bring proper gear: flashlight, gloves, mask, sturdy shoes.</li>
+  <li>Check structural safety before entering.</li>
+  <li>Avoid dangerous areas like rooftops or unstable floors.</li>
+  <li>Do not touch hazardous materials (asbestos, chemicals).</li>
+  <li>Keep noise to a minimum to avoid attracting attention.</li>
+  <li>Take only photos, leave nothing behind.</li>
+  <li>Do not post exact locations publicly.</li>
+  <li>Be aware of weather and environmental hazards.</li>
+  <li>Have an exit plan in case of emergencies.</li>
+  <li>Carry a fully charged phone for emergencies.</li>
+  <li>Respect the environment and wildlife.</li>
+</ul>
+
+<div class="nav">
+  <i class="fas fa-home" onclick="navigate('/home.html')"></i>
+  <i class="fas fa-map" onclick="navigate('/map.html')"></i>
+  <i class="fas fa-gavel current" onclick="navigate('/rules.html')"></i>
+  <i class="fas fa-book" onclick="navigate('/resources.html')"></i>
+</div>
+
+<script>
+function navigate(url) {
+  window.location.href = url;
+}
+</script>
+
+</body>
+</html>

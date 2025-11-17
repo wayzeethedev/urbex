@@ -220,7 +220,7 @@ const tooltip = document.getElementById('tooltip');
 const invalidMessage = document.getElementById('invalidMessage');
 
 // Load data.json
-fetch('/data.json')
+fetch('./data.json')
   .then(res => res.json())
   .then(data => {
     const location = data.locations.find(l => l.id === locationId);
@@ -257,7 +257,7 @@ fetch('/data.json')
     descriptionBox.innerText = location.description;
 
     // Load tags from external JSON
-    fetch('/icons/key.json')
+    fetch('./icons/key.json')
       .then(res => res.json())
       .then(tagsData => {
         location.tags.forEach(tagName => {

@@ -1,0 +1,56 @@
+[
+  {
+    "registration": "1300029",
+    "company": "NA",
+    "latitude": 44.8816,
+    "longitude": -92.6335,
+    "construction_year": 2016,
+    "structure_type": "NA",
+    "height_ft": 225.1
+  },
+  {
+    "registration": "2002-agl-3914-oe",
+    "company": "Sprint Spectrum",
+    "latitude": 44.8767,
+    "longitude": -92.6144,
+    "construction_year": 2002,
+    "structure_type": "NA",
+    "height_ft": 190
+  },
+  {
+    "registration": "2009-agl-6608-oe",
+    "company": "T-mobile",
+    "latitude": 44.8659,
+    "longitude": -92.6171,
+    "construction_year": 2009,
+    "structure_type": "NA",
+    "height_ft": 93.8
+  },
+  {
+    "registration": "1065539",
+    "company": "Pierce, County Of",
+    "latitude": 44.8347,
+    "longitude": -92.5856,
+    "construction_year": 1994,
+    "structure_type": "Tower",
+    "height_ft": 299.2
+  },
+  {
+    "registration": "95-agl-3719-oe",
+    "company": "United States Cellular Corporation",
+    "latitude": 44.8349,
+    "longitude": -92.5871,
+    "construction_year": 1996,
+    "structure_type": "NA",
+    "height_ft": 200.1
+  },
+  {
+    "registration": "2019-agl-9371-oe",
+    "company": "Great Rivers Wireless, Llc",
+    "latitude": 44.9029,
+    "longitude": -92.6898,
+    "construction_year": 2019,
+    "structure_type": "NA",
+    "height_ft": 257.9
+  }
+]

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Urbex Map</title>
 <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
@@ -49,7 +49,7 @@ body{margin:0;font-family:Arial,sans-serif;height:100vh;overflow:hidden;backgrou
 </div>
 </div>
 <button id="mode-toggle">3D</button>
-<div id="compass" title="Reset North"><i class="fas fa-location-arrow"></i></div>
+<div id="compass" title="Center on Me"><i class="fas fa-location-arrow"></i></div>
 <div class="nav">
 <i class="fas fa-home" onclick="window.location.href='./home.html'"></i>
 <i class="fas fa-map current" onclick="window.location.href='./map.html'"></i>
@@ -66,10 +66,13 @@ let initialCenter=[0,0]
 let initialZoom=13
 let towerMarkers=[]
 let userMarker=null
+let map=null
+
 fetch('data.json').then(r=>r.json()).then(d=>{
     const locations=d.locations
     if(locations.length>0) initialCenter=[locations[0].coordinates.longitude, locations[0].coordinates.latitude]
-    const map=new maplibregl.Map({
+
+    map=new maplibregl.Map({
         container:'map',
         style:{
             version:8,
@@ -86,14 +89,16 @@ fetch('data.json').then(r=>r.json()).then(d=>{
         pitch:0,
         bearing:0
     })
-    map.touchZoomRotate.disableRotation()
+
+    map.touchZoomRotate.enableRotation()
+    map.dragRotate.enable()
     map.scrollZoom.enable({around:'center'})
     map.doubleClickZoom.disable()
     map.boxZoom.disable()
     map.keyboard.disable()
     map.dragPan.enable({inertia:0})
-    map.dragRotate.disable()
     map.addControl(new maplibregl.NavigationControl({showCompass:false,showZoom:false}))
+
     map.on('load',()=>{
         if(savedRail){
             map.addLayer({id:'railways-layer',type:'raster',source:'rail'})
@@ -107,55 +112,20 @@ fetch('data.json').then(r=>r.json()).then(d=>{
             new maplibregl.Marker(el).setLngLat([l.coordinates.longitude,l.coordinates.latitude]).addTo(map)
         })
         if(savedTowers) loadTowers(map)
-        trackLocation(map)
+        trackLocation()
     })
-    document.getElementById('toggle-layers').onclick=()=>{
-        const p=document.getElementById('layer-panel')
-        p.style.display=p.style.display==='block'?'none':'block'
-    }
-    document.querySelectorAll('input[name="basemap"]').forEach(r=>{
-        r.checked=r.value===savedBase
-        r.onchange=()=>{
-            const id=r.value==='jawgDark'?'jawgDark':r.value==='satellite'?'sat':'jawgLight'
-            if(map.getLayer('base')) map.removeLayer('base')
-            map.addLayer({id:'base',type:'raster',source:id})
-            const first=map.getStyle().layers[0].id
-            if(first!=='base') map.moveLayer('base',first)
-            localStorage.setItem('urbex.basemap',r.value)
-        }
-    })
-    document.querySelectorAll('#layer-panel input[type="checkbox"]').forEach(c=>{
-        c.checked=(c.dataset.layer==='railways'&&savedRail)||(c.dataset.layer==='towers'&&savedTowers)
-        c.onchange=()=>{
-            if(c.dataset.layer==='railways'){
-                if(c.checked){
-                    if(!map.getLayer('railways-layer')) map.addLayer({id:'railways-layer',type:'raster',source:'rail'})
-                    const last=map.getStyle().layers[map.getStyle().layers.length-1].id
-                    map.moveLayer('railways-layer',last)
-                    localStorage.setItem('urbex.rail',true)
-                }else{
-                    if(map.getLayer('railways-layer')) map.removeLayer('railways-layer')
-                    localStorage.setItem('urbex.rail',false)
-                }
-            }
-            if(c.dataset.layer==='towers'){
-                if(c.checked){
-                    if(towerMarkers.length===0) loadTowers(map)
-                    localStorage.setItem('urbex.towers',true)
-                }else{
-                    towerMarkers.forEach(m=>m.remove())
-                    towerMarkers=[]
-                    localStorage.setItem('urbex.towers',false)
-                }
-            }
-        }
-    })
+
+    document.getElementById('toggle-layers').onclick=()=>{const p=document.getElementById('layer-panel');p.style.display=p.style.display==='block'?'none':'block'}
+    document.querySelectorAll('input[name="basemap"]').forEach(r=>{r.checked=r.value===savedBase;r.onchange=()=>{const id=r.value==='jawgDark'?'jawgDark':r.value==='satellite'?'sat':'jawgLight';if(map.getLayer('base')) map.removeLayer('base');map.addLayer({id:'base',type:'raster',source:id});const first=map.getStyle().layers[0].id;if(first!=='base') map.moveLayer('base',first);localStorage.setItem('urbex.basemap',r.value)}})
+    document.querySelectorAll('#layer-panel input[type="checkbox"]').forEach(c=>{c.checked=(c.dataset.layer==='railways'&&savedRail)||(c.dataset.layer==='towers'&&savedTowers);c.onchange=()=>{if(c.dataset.layer==='railways'){if(c.checked){if(!map.getLayer('railways-layer')) map.addLayer({id:'railways-layer',type:'raster',source:'rail'});const last=map.getStyle().layers[map.getStyle().layers.length-1].id;map.moveLayer('railways-layer',last);localStorage.setItem('urbex.rail',true)}else{if(map.getLayer('railways-layer')) map.removeLayer('railways-layer');localStorage.setItem('urbex.rail',false)}}if(c.dataset.layer==='towers'){if(c.checked){if(towerMarkers.length===0) loadTowers(map);localStorage.setItem('urbex.towers',true)}else{towerMarkers.forEach(m=>m.remove());towerMarkers=[];localStorage.setItem('urbex.towers',false)}}}})
+
     const modeToggle=document.getElementById('mode-toggle')
     let mode3d=true
     modeToggle.onclick=()=>{mode3d=!mode3d;modeToggle.textContent=mode3d?'2D':'3D';map.easeTo({pitch:mode3d?60:0,duration:500})}
-    document.getElementById('compass').onclick=()=>{map.easeTo({bearing:0,duration:400})}
+    document.getElementById('compass').onclick=()=>{if(userMarker){const lngLat=userMarker.getLngLat();map.easeTo({center:[lngLat.lng,lngLat.lat],duration:800})}}
 })
-function trackLocation(map){
+
+function trackLocation(){
     if(!navigator.geolocation) return
     if(navigator.permissions){
         navigator.permissions.query({name:"geolocation"}).then(result=>{
@@ -163,16 +133,19 @@ function trackLocation(map){
             else if(result.state==="prompt") navigator.geolocation.getCurrentPosition(updateUserLocation)
         })
     }else navigator.geolocation.getCurrentPosition(updateUserLocation)
+
     function updateUserLocation(pos){
-        const lng=pos.coords.longitude
-        const lat=pos.coords.latitude
+        const lng = pos.coords.longitude
+        const lat = pos.coords.latitude
         if(!userMarker){
-            const el=document.createElement('div')
-            el.id='user-location'
-            userMarker=new maplibregl.Marker(el).setLngLat([lng,lat]).addTo(map)
-        }else userMarker.setLngLat([lng,lat])
+            const el = document.createElement('div')
+            el.id = 'user-location'
+            userMarker = new maplibregl.Marker(el).setLngLat([lng, lat]).addTo(map)
+            map.easeTo({center:[lng,lat],duration:1000})
+        } else userMarker.setLngLat([lng, lat])
     }
 }
+
 function loadTowers(map){
     fetch('/towers.json').then(r=>r.json()).then(towers=>{
         towerMarkers.forEach(m=>m.remove())
@@ -189,6 +162,7 @@ function loadTowers(map){
         })
     })
 }
+
 function showPreview(location){
     const preview=document.getElementById('preview')
     const title=document.getElementById('preview-title')
@@ -207,6 +181,7 @@ function showPreview(location){
     preview.onclick=e=>{e.stopPropagation();openDetails(location)}
     document.addEventListener('click',closePreviewOnClickOutside)
 }
+
 function openDetails(location){window.location.href=`/location.html?id=${encodeURIComponent(location.id)}`}
 function closePreviewOnClickOutside(e){
     const preview=document.getElementById('preview')

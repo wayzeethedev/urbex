@@ -4,175 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Location Page</title>
-<link rel="manifest" href="./manifest.json">
+<link rel="manifest" href="manifest.json">
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: black;
-    color: white;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    overflow-x: hidden;
-  }
-
-  .banner {
-    position: relative;
-    width: 100%;
-    height: 250px;
-    overflow: hidden;
-  }
-  .banner img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    pointer-events: none;
-  }
-  .banner::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 80px;
-    background: linear-gradient(to top, black, transparent);
-    z-index: 1;
-  }
-  .title {
-    position: absolute;
-    bottom: 10px;
-    left: 20px;
-    font-size: 32px;
-    font-weight: bold;
-    z-index: 2;
-  }
-
-  .back-arrow {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-size: 24px;
-    cursor: pointer;
-    z-index: 3;
-  }
-
-  .selector {
-    display: flex;
-    position: relative;
-    width: 100%;
-    height: 50px;
-    border-bottom: 1px solid #444;
-  }
-  .option {
-    flex: 1;
-    text-align: center;
-    line-height: 50px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: color 0.3s;
-  }
-  .option.active {
-    color: red;
-  }
-  .indicator {
-    position: absolute;
-    bottom: 0;
-    width: 50%;
-    height: 3px;
-    background-color: red;
-    transition: transform 0.3s;
-  }
-
-  .report-tab {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    margin: 15px 20px;
-  }
-
-  .coords {
-    font-size: 20px;
-    cursor: pointer;
-    text-align: center;
-    position: relative;
-  }
-
-  .coords-dropdown {
-    display: none;
-    position: absolute;
-    top: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #222;
-    border: 1px solid #444;
-    border-radius: 5px;
-    overflow: hidden;
-    z-index: 10;
-  }
-  .coords-dropdown a {
-    display: block;
-    padding: 8px 15px;
-    color: white;
-    text-decoration: none;
-    font-size: 16px;
-  }
-  .coords-dropdown a:hover {
-    background-color: #333;
-  }
-
-  .tag-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-  }
-  .tag-grid img {
-    width: 35px;
-    height: 35px;
-    object-fit: contain;
-    cursor: pointer;
-  }
-
-  .gallery {
-    display: none;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    margin: 10px;
-  }
-  .gallery img {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-  }
-
-  .description-box {
-    text-align: center;
-    font-size: 16px;
-  }
-
-  .tooltip {
-    position: absolute;
-    background: #222;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 14px;
-    display: none;
-    pointer-events: none;
-    z-index: 100;
-  }
-
-  .invalid-message {
-    text-align: center;
-    margin-top: 50px;
-    font-size: 20px;
-    color: red;
-  }
-
+body{margin:0;font-family:Arial,sans-serif;background:black;color:white;overflow:hidden;-webkit-user-select:none;touch-action:none}
+.banner{position:relative;width:100%;height:200px;overflow:hidden;border-bottom:1px solid #333}
+.banner img{width:100%;height:100%;object-fit:cover;display:block}
+.banner::after{content:'';position:absolute;bottom:0;width:100%;height:50px;background:linear-gradient(to top,black,transparent);z-index:1}
+.title{position:absolute;bottom:5px;left:10px;font-size:24px;font-weight:bold;z-index:2}
+.back-arrow{position:absolute;top:5px;left:5px;font-size:24px;cursor:pointer;z-index:3}
+.selector{display:flex;position:relative;width:100%;height:40px;border-bottom:1px solid #333}
+.option{flex:1;text-align:center;line-height:40px;cursor:pointer;font-weight:bold;transition:color .3s}
+.option.active{color:red}
+.indicator{position:absolute;bottom:0;width:50%;height:3px;background:red;transition:transform .3s}
+.report-tab{display:flex;flex-direction:column;align-items:center;margin:10px 0}
+.coords{font-size:16px;cursor:pointer;text-align:center;position:relative}
+.coords-dropdown{display:none;position:absolute;top:25px;left:50%;transform:translateX(-50%);background:#222;border:1px solid #444;border-radius:5px;overflow:hidden;z-index:10}
+.coords-dropdown a{display:block;padding:6px 12px;color:white;text-decoration:none;font-size:14px}
+.coords-dropdown a:hover{background:#333}
+.gallery{display:none;width:100%;overflow-y:auto;max-height:calc(100vh-250px);padding-bottom:10px}
+.tag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;width:100%}
+.tag-grid img{width:100%;aspect-ratio:1/1;object-fit:cover;cursor:pointer;transition:transform .3s}
+.tag-grid img:hover{transform:scale(1.05)}
+.description-box{text-align:center;font-size:14px;line-height:1.4;padding:5px}
+.tooltip{position:absolute;background:#222;color:white;padding:4px 8px;border-radius:5px;font-size:12px;display:none;pointer-events:none;z-index:100}
+.invalid-message{text-align:center;margin-top:30px;font-size:18px;color:red}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.95);display:none;flex-direction:column;justify-content:flex-start;align-items:center;z-index:2000;overflow:hidden}
+.overlay .counter{color:white;font-size:16px;margin:8px 0;position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:2100}
+.overlay-img-wrapper{position:relative;width:100%;height:100%;display:flex;justify-content:center;align-items:center;overflow:hidden;touch-action:none}
+.overlay img{max-width:95%;max-height:95%;object-fit:contain;cursor:pointer;transition:transform .3s ease, opacity .3s ease}
 </style>
 </head>
 <body>
@@ -198,139 +57,194 @@
       <a href="#" target="_blank">Google Earth</a>
     </div>
   </div>
-  <div class="tag-grid" id="tagGrid"></div>
   <div class="description-box" id="description"></div>
 </div>
 
-<div id="galleryTab" class="gallery"></div>
+<div id="galleryTab" class="gallery">
+  <div class="tag-grid" id="tagGrid"></div>
+</div>
 
 <div class="tooltip" id="tooltip"></div>
-
 <div class="invalid-message" id="invalidMessage" style="display:none;">Invalid data. Try again.</div>
 
+<div class="overlay" id="imageOverlay">
+  <div class="counter" id="overlayCounter">1/1</div>
+  <div class="overlay-img-wrapper">
+    <img id="overlayImg" src="">
+  </div>
+</div>
+
 <script>
-const urlParams = new URLSearchParams(window.location.search);
-const locationId = urlParams.get('id');
-const titleText = document.getElementById('titleText');
-const bannerImage = document.getElementById('bannerImage');
-const coordsElem = document.getElementById('coords');
-const descriptionBox = document.getElementById('description');
-const tagGrid = document.getElementById('tagGrid');
-const galleryTab = document.getElementById('galleryTab');
-const tooltip = document.getElementById('tooltip');
-const invalidMessage = document.getElementById('invalidMessage');
+const urlParams=new URLSearchParams(window.location.search);
+const locationId=urlParams.get('id');
+const titleText=document.getElementById('titleText');
+const bannerImage=document.getElementById('bannerImage');
+const coordsElem=document.getElementById('coords');
+const descriptionBox=document.getElementById('description');
+const tagGrid=document.getElementById('tagGrid');
+const invalidMessage=document.getElementById('invalidMessage');
+const overlay=document.getElementById('imageOverlay');
+const overlayImg=document.getElementById('overlayImg');
+const overlayCounter=document.getElementById('overlayCounter');
+let imagesList=[],currentIndex=0,scale=1,initialScale=1,imgX=0,imgY=0,isDragging=false,startX=0,startY=0,pinchStartDist=0,isPinching=false,lastTapTime=0,swipeStartX=0,currentTranslateX=0;
 
-// Load data.json
-fetch('./data.json')
-  .then(res => res.json())
-  .then(data => {
-    const location = data.locations.find(l => l.id === locationId);
-    if(!location){
-      document.getElementById('reportTab').style.display = 'none';
-      galleryTab.style.display = 'none';
-      document.querySelector('.banner').style.display = 'none';
-      document.querySelector('.selector').style.display = 'none';
-      invalidMessage.style.display = 'block';
-      return;
-    }
-
-    // Populate banner title
-    titleText.innerText = location.name;
-
-    // Banner image - use first location image or placeholder
-    if(location.images.length > 0){
-      bannerImage.src = location.images[0];
-    } else {
-      bannerImage.src = 'https://via.placeholder.com/800x250';
-    }
-
-    // Coordinates
-    const lat = location.coordinates.latitude;
-    const lon = location.coordinates.longitude;
-    coordsElem.firstChild.textContent = `${lat}, ${lon}`;
-    const dropdownLinks = coordsElem.querySelectorAll('a');
-    dropdownLinks[0].href = `https://www.google.com/maps?q=${lat},${lon}`;
-    dropdownLinks[1].href = `https://maps.apple.com/?q=${lat},${lon}`;
-    dropdownLinks[2].href = `https://www.waze.com/ul?ll=${lat},${lon}&navigate=yes`;
-    dropdownLinks[3].href = `https://earth.google.com/web/search/${lat},${lon}`;
-
-    // Description
-    descriptionBox.innerText = location.description;
-
-    // Load tags from external JSON
-    fetch('./icons/key.json')
-      .then(res => res.json())
-      .then(tagsData => {
-        location.tags.forEach(tagName => {
-          const tag = tagsData.find(t => t.name.toLowerCase() === tagName.toLowerCase());
-          if(tag){
-            const img = document.createElement('img');
-            img.src = tag.imgSrc;
-            img.alt = tag.name;
-            img.dataset.name = tag.name;
-            img.addEventListener('click', e => {
-              tooltip.innerText = e.target.dataset.name;
-              tooltip.style.display = 'block';
-              const rect = e.target.getBoundingClientRect();
-              tooltip.style.top = rect.top - 35 + 'px';
-              tooltip.style.left = rect.left + rect.width/2 - tooltip.offsetWidth/2 + 'px';
-              setTimeout(() => tooltip.style.display = 'none', 1500);
-            });
-            tagGrid.appendChild(img);
-          }
-        });
-      });
-
-    // Gallery
-    location.images.forEach(src => {
-      const img = document.createElement('img');
-      img.src = src;
-      galleryTab.appendChild(img);
-    });
-
-  })
-  .catch(err => {
-    console.error(err);
-    document.getElementById('reportTab').style.display = 'none';
-    galleryTab.style.display = 'none';
-    document.querySelector('.banner').style.display = 'none';
-    document.querySelector('.selector').style.display = 'none';
-    invalidMessage.style.display = 'block';
+fetch('./data.json').then(r=>r.json()).then(data=>{
+  const location=data.locations.find(l=>l.id===locationId);
+  if(!location){document.getElementById('reportTab').style.display='none';invalidMessage.style.display='block';return;}
+  titleText.innerText=location.name;
+  bannerImage.src=location.images[0]||'https://via.placeholder.com/800x250';
+  const lat=location.coordinates.latitude,lon=location.coordinates.longitude;
+  coordsElem.firstChild.textContent=`${lat}, ${lon}`;
+  const links=coordsElem.querySelectorAll('a');
+  links[0].href=`https://www.google.com/maps?q=${lat},${lon}`;
+  links[1].href=`https://maps.apple.com/?q=${lat},${lon}`;
+  links[2].href=`https://www.waze.com/ul?ll=${lat},${lon}&navigate=yes`;
+  links[3].href=`https://earth.google.com/web/search/${lat},${lon}`;
+  descriptionBox.innerText=location.description;
+  imagesList=location.images;
+  imagesList.forEach((src,i)=>{
+    const img=document.createElement('img');
+    img.src=src;
+    img.addEventListener('click',()=>{currentIndex=i;showOverlay();});
+    tagGrid.appendChild(img);
   });
+}).catch(err=>{console.error(err);invalidMessage.style.display='block';});
 
-// Tab logic
+function showOverlay(){
+  overlay.style.display='flex';
+  overlayImg.style.transition='transform 0.3s ease';
+  overlayImg.style.transform='translateX(0px) scale(1)';
+  overlayImg.src=imagesList[currentIndex];
+  overlayCounter.innerText=`${currentIndex+1}/${imagesList.length}`;
+  scale=1; imgX=0; imgY=0; currentTranslateX=0;
+}
+
+function changeImage(direction) {
+  currentIndex = (currentIndex + direction + imagesList.length) % imagesList.length;
+  overlayImg.style.transition = 'transform 0.3s ease';
+  overlayImg.style.transform = 'translateX(0px) scale(1)';
+  overlayImg.src = imagesList[currentIndex];
+  overlayCounter.innerText = `${currentIndex + 1}/${imagesList.length}`;
+  scale = 1;
+  currentTranslateX = 0;
+}
+
+// Touch events for swiping
+overlayImg.addEventListener('touchstart', e => {
+  if (e.touches.length === 1 && scale === 1) {
+    swipeStartX = e.touches[0].clientX;
+    isDragging = true;
+    overlayImg.style.transition = 'none';
+    currentTranslateX = 0;
+  } else if (e.touches.length === 2) {
+    isPinching = true;
+    isDragging = false;
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    pinchStartDist = Math.hypot(dx, dy);
+    initialScale = scale;
+  }
+});
+
+overlayImg.addEventListener('touchmove', e => {
+  if (isPinching && e.touches.length === 2) {
+    e.preventDefault();
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.hypot(dx, dy);
+    scale = Math.max(1, Math.min(initialScale * (dist / pinchStartDist), 5));
+    overlayImg.style.transform = `translateX(${currentTranslateX}px) scale(${scale})`;
+  } else if (isDragging && e.touches.length === 1 && scale === 1) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - swipeStartX;
+    
+    // Limit the swipe distance to prevent overswiping
+    const maxSwipe = window.innerWidth * 0.3;
+    currentTranslateX = Math.max(-maxSwipe, Math.min(maxSwipe, deltaX));
+    
+    overlayImg.style.transform = `translateX(${currentTranslateX}px) scale(1)`;
+  }
+});
+
+overlayImg.addEventListener('touchend', e => {
+  if (e.touches.length < 2) {
+    isPinching = false;
+  }
+  
+  if (isDragging && scale === 1) {
+    isDragging = false;
+    const swipeThreshold = 50; // Minimum swipe distance to change image
+    
+    overlayImg.style.transition = 'transform 0.3s ease';
+    
+    if (currentTranslateX < -swipeThreshold && currentIndex < imagesList.length - 1) {
+      // Swipe left - next image
+      changeImage(1);
+    } else if (currentTranslateX > swipeThreshold && currentIndex > 0) {
+      // Swipe right - previous image
+      changeImage(-1);
+    } else {
+      // Return to current image
+      overlayImg.style.transform = 'translateX(0px) scale(1)';
+      currentTranslateX = 0;
+    }
+  }
+});
+
+// Click/tap to exit
+overlayImg.addEventListener('click', e => {
+  // Only exit if not pinching and not swiping
+  if (!isPinching && !isDragging && scale === 1) {
+    overlay.style.display = 'none';
+  }
+});
+
+// Also allow clicking on the overlay background to exit
+overlay.addEventListener('click', e => {
+  if (e.target === overlay) {
+    overlay.style.display = 'none';
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') overlay.style.display = 'none';
+  
+  // Optional: Add keyboard navigation
+  if (overlay.style.display === 'flex') {
+    if (e.key === 'ArrowLeft') {
+      changeImage(-1);
+    } else if (e.key === 'ArrowRight') {
+      changeImage(1);
+    }
+  }
+});
+
 const options = document.querySelectorAll('.option');
 const indicator = document.querySelector('.indicator');
 const report = document.getElementById('reportTab');
+const gallery = document.getElementById('galleryTab');
+options.forEach(option => option.addEventListener('click', () => {
+  options.forEach(o => o.classList.remove('active'));
+  option.classList.add('active');
+  indicator.style.transform = `translateX(${option.dataset.index * 100}%)`;
+  if (option.dataset.index === '0') {
+    report.style.display = 'flex';
+    gallery.style.display = 'none';
+  } else {
+    report.style.display = 'none';
+    gallery.style.display = 'block';
+  }
+}));
 
-options.forEach(option => {
-  option.addEventListener('click', () => {
-    options.forEach(o => o.classList.remove('active'));
-    option.classList.add('active');
-    indicator.style.transform = `translateX(${option.dataset.index * 100}%)`;
-    if(option.dataset.index === '0'){
-      report.style.display = 'flex';
-      galleryTab.style.display = 'none';
-    } else {
-      report.style.display = 'none';
-      galleryTab.style.display = 'flex';
-    }
-  });
-});
-
-// Back arrow
-document.querySelector('.back-arrow').addEventListener('click', () => {
-  history.back();
-});
-
-// Coordinates dropdown
+document.querySelector('.back-arrow').addEventListener('click', () => history.back());
 const coords = document.querySelector('.coords');
 const dropdown = document.querySelector('.coords-dropdown');
 coords.addEventListener('click', () => {
   dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
 });
 document.addEventListener('click', e => {
-  if(!coords.contains(e.target)) dropdown.style.display = 'none';
+  if (!coords.contains(e.target)) dropdown.style.display = 'none';
 });
 </script>
 </body>

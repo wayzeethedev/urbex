@@ -73,15 +73,15 @@ fetch('data.json').then(r=>r.json()).then(d=>{
         style:{
             version:8,
             sources:{
-                jawgLight:{type:'raster', tiles:['https://a.tile.jawg.io/jawg-light/{z}/{x}/{y}.png?access-token='+JAWG_TOKEN], tileSize:256},
-                jawgDark:{type:'raster', tiles:['https://a.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token='+JAWG_TOKEN], tileSize:256},
-                sat:{type:'raster', tiles:['https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}.jpg'], tileSize:256},
-                rail:{type:'raster', tiles:['https://a.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png'], tileSize:256}
+                jawgLight:{type:'raster',tiles:['https://a.tile.jawg.io/jawg-light/{z}/{x}/{y}.png?access-token='+JAWG_TOKEN],tileSize:256},
+                jawgDark:{type:'raster',tiles:['https://a.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token='+JAWG_TOKEN],tileSize:256},
+                sat:{type:'raster',tiles:['https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}.jpg'],tileSize:256},
+                rail:{type:'raster',tiles:['https://a.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png'],tileSize:256}
             },
-            layers:[{id:'base', type:'raster', source: savedBase==='jawgDark'?'jawgDark': savedBase==='satellite'?'sat':'jawgLight'}]
+            layers:[{id:'base',type:'raster',source:savedBase==='jawgDark'?'jawgDark':savedBase==='satellite'?'sat':'jawgLight'}]
         },
-        center: initialCenter,
-        zoom: initialZoom,
+        center:initialCenter,
+        zoom:initialZoom,
         pitch:0,
         bearing:0
     })
@@ -93,53 +93,72 @@ fetch('data.json').then(r=>r.json()).then(d=>{
     map.keyboard.disable()
     map.dragPan.enable({inertia:0})
     map.dragRotate.disable()
-    map.addControl(new maplibregl.NavigationControl({showCompass:false, showZoom:false}))
+    map.addControl(new maplibregl.NavigationControl({showCompass:false,showZoom:false}))
 
-    map.on('load', () => {
-        if(savedRail) map.addLayer({id:'railways-layer', type:'raster', source:'rail'}, 'base')
-
+    map.on('load',()=>{
+        if(savedRail){
+            map.addLayer({id:'railways-layer',type:'raster',source:'rail'})
+            const last=map.getStyle().layers[map.getStyle().layers.length-1].id
+            map.moveLayer('railways-layer',last)
+        }
         locations.forEach(l=>{
             const el=document.createElement('div')
             el.className='pin'
-            el.onclick=e=>{e.stopPropagation(); showPreview({id:l.id, name:l.name, images:l.images||[], description:l.description})}
-            new maplibregl.Marker(el).setLngLat([l.coordinates.longitude, l.coordinates.latitude]).addTo(map)
+            el.onclick=e=>{e.stopPropagation();showPreview({id:l.id,name:l.name,images:l.images||[],description:l.description})}
+            new maplibregl.Marker(el).setLngLat([l.coordinates.longitude,l.coordinates.latitude]).addTo(map)
         })
-
         if(savedTowers) loadTowers(map)
     })
 
-    document.getElementById('toggle-layers').onclick = () => {
+    document.getElementById('toggle-layers').onclick=()=>{
         const p=document.getElementById('layer-panel')
-        p.style.display = p.style.display==='block'?'none':'block'
+        p.style.display=p.style.display==='block'?'none':'block'
     }
 
     document.querySelectorAll('input[name="basemap"]').forEach(r=>{
         r.checked=r.value===savedBase
         r.onchange=()=>{
             const id=r.value==='jawgDark'?'jawgDark':r.value==='satellite'?'sat':'jawgLight'
-            map.removeLayer('base')
-            map.addLayer({id:'base', type:'raster', source:id}, map.getStyle().layers[0].id)
-            localStorage.setItem('urbex.basemap', r.value)
+            if(map.getLayer('base')) map.removeLayer('base')
+            map.addLayer({id:'base',type:'raster',source:id})
+            const first=map.getStyle().layers[0].id
+            if(first!=='base') map.moveLayer('base',first)
+            localStorage.setItem('urbex.basemap',r.value)
         }
     })
 
     document.querySelectorAll('#layer-panel input[type="checkbox"]').forEach(c=>{
-        c.checked=(c.dataset.layer==='railways' && savedRail)||(c.dataset.layer==='towers' && savedTowers)
+        c.checked=(c.dataset.layer==='railways'&&savedRail)||(c.dataset.layer==='towers'&&savedTowers)
         c.onchange=()=>{
             if(c.dataset.layer==='railways'){
-                if(c.checked) map.addLayer({id:'railways-layer', type:'raster', source:'rail'},'base')
-                else if(map.getLayer('railways-layer')) map.removeLayer('railways-layer')
+                if(c.checked){
+                    if(!map.getLayer('railways-layer')){
+                        map.addLayer({id:'railways-layer',type:'raster',source:'rail'})
+                    }
+                    const last=map.getStyle().layers[map.getStyle().layers.length-1].id
+                    map.moveLayer('railways-layer',last)
+                    localStorage.setItem('urbex.rail',true)
+                }else{
+                    if(map.getLayer('railways-layer')) map.removeLayer('railways-layer')
+                    localStorage.setItem('urbex.rail',false)
+                }
             }
             if(c.dataset.layer==='towers'){
-                if(c.checked) loadTowers(map)
-                else towerMarkers.forEach(m=>m.remove())
+                if(c.checked){
+                    if(towerMarkers.length===0) loadTowers(map)
+                    localStorage.setItem('urbex.towers',true)
+                }else{
+                    towerMarkers.forEach(m=>m.remove())
+                    towerMarkers=[]
+                    localStorage.setItem('urbex.towers',false)
+                }
             }
         }
     })
 
     const modeToggle=document.getElementById('mode-toggle')
     let mode3d=true
-    modeToggle.onclick=()=>{mode3d=!mode3d; modeToggle.textContent=mode3d?'2D':'3D'; map.easeTo({pitch:mode3d?60:0,duration:500})}
+    modeToggle.onclick=()=>{mode3d=!mode3d;modeToggle.textContent=mode3d?'2D':'3D';map.easeTo({pitch:mode3d?60:0,duration:500})}
     document.getElementById('compass').onclick=()=>{map.easeTo({bearing:0,duration:400})}
 })
 
@@ -153,9 +172,9 @@ function loadTowers(map){
             el.style.background='url(https://cdn-icons-png.flaticon.com/256/1370/1370938.png) no-repeat center/contain'
             el.style.width='30px'
             el.style.height='30px'
-            el.title = `${t.company} (${t.height_ft} ft)`
-            const marker = new maplibregl.Marker(el).setLngLat([t.longitude, t.latitude]).addTo(map)
-            towerMarkers.push(marker)
+            const m=new maplibregl.Marker(el).setLngLat([t.longitude,t.latitude]).addTo(map)
+            m.getElement().style.zIndex=10
+            towerMarkers.push(m)
         })
     })
 }
@@ -164,14 +183,19 @@ function showPreview(location){
     const preview=document.getElementById('preview')
     const title=document.getElementById('preview-title')
     const thumbs=document.getElementById('preview-thumbs')
-    if(location.images && location.images.length>0) preview.style.backgroundImage=`url(${location.images[0]})`; else preview.style.backgroundImage='none'
+    preview.style.backgroundImage=location.images&&location.images.length>0?`url(${location.images[0]})`:'none'
     title.textContent=location.name
     thumbs.innerHTML=''
-    if(location.images) location.images.slice(1,4).forEach(img=>{const i=document.createElement('img'); i.src=img; i.onclick=e=>{e.stopPropagation(); openDetails(location)}; thumbs.appendChild(i)})
+    if(location.images) location.images.slice(1,4).forEach(img=>{
+        const i=document.createElement('img')
+        i.src=img
+        i.onclick=e=>{e.stopPropagation();openDetails(location)}
+        thumbs.appendChild(i)
+    })
     preview.classList.add('active')
     preview.style.transform='translateY(0)'
-    preview.onclick=e=>{e.stopPropagation(); openDetails(location)}
-    document.addEventListener('click', closePreviewOnClickOutside)
+    preview.onclick=e=>{e.stopPropagation();openDetails(location)}
+    document.addEventListener('click',closePreviewOnClickOutside)
 }
 
 function openDetails(location){window.location.href=`/location.html?id=${encodeURIComponent(location.id)}`}
@@ -180,10 +204,10 @@ function closePreviewOnClickOutside(e){
     const pins=document.querySelectorAll('.pin')
     let clickedPin=false
     pins.forEach(pin=>{if(pin.contains(e.target)) clickedPin=true})
-    if(!preview.contains(e.target) && !clickedPin){
+    if(!preview.contains(e.target)&&!clickedPin){
         preview.classList.remove('active')
         preview.style.transform='translateY(150%)'
-        document.removeEventListener('click', closePreviewOnClickOutside)
+        document.removeEventListener('click',closePreviewOnClickOutside)
     }
 }
 </script>

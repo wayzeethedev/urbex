@@ -78,7 +78,7 @@ fetch('data.json').then(r=>r.json()).then(d=>{
             sources:{
                 jawgLight:{type:'raster',tiles:['https://a.tile.jawg.io/jawg-light/{z}/{x}/{y}.png?access-token='+JAWG_TOKEN],tileSize:256},
                 jawgDark:{type:'raster',tiles:['https://a.tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?access-token='+JAWG_TOKEN],tileSize:256},
-                sat:{type:'raster',tiles:['https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}.jpg'],tileSize:256},
+                sat:{type:'raster',tiles:['https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}.jpg?api_key=58cc5cc3-4677-4264-81f0-eb78f696daea'],tileSize:256},
                 rail:{type:'raster',tiles:['https://a.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png'],tileSize:256}
             },
             layers:[{id:'base',type:'raster',source:savedBase==='jawgDark'?'jawgDark':savedBase==='satellite'?'sat':'jawgLight'}]

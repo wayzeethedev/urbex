@@ -8,7 +8,7 @@ const ASSETS_TO_CACHE = [
   '/app.js',
   '/manifest.json',
   '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/icons/logo.png'
 ];
 
 // Install event: cache all assets
